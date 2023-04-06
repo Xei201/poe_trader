@@ -35,7 +35,7 @@ class Item(models.Model):
 
 
 class DataPoint(models.Model):
-    values = models.DecimalField(
+    value = models.DecimalField(
         max_digits=12,
         decimal_places=4,
     )
@@ -50,4 +50,4 @@ class DataPoint(models.Model):
         ordering = ["item", "data_date", "amount"]
 
     def __str__(self):
-        return self.price
+        return str(self.value)

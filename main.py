@@ -1,4 +1,5 @@
 from pprint import pprint
+from datetime import datetime, timedelta
 
 import requests
 
@@ -9,7 +10,10 @@ def test(url):
 
 
 if __name__ == '__main__':
-    url = "https://poe.ninja/api/data/itemoverview?league=Sanctum&type=DivinationCard&language=en"
-    result = test(url)
-    pprint(result["lines"][0]["artFilename"])
+    # url = "https://poe.ninja/api/data/currencyoverview?league=Sanctum&type=Currency&language=en"
+    # result = test(url)
+    # pprint(result["lines"][0])
 
+    tod = datetime.today().date() - timedelta(days=2)
+
+    print(tod)

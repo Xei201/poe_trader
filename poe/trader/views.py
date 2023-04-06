@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from django.views import generic
 
+from .core import pars_data_pont, pars_data_currency, pars_type_currency
 from .models import Category
-from .core import pars_type
 
 
 class ParsCategory(generic.ListView):
@@ -12,6 +12,9 @@ class ParsCategory(generic.ListView):
     context_object_name = "datas"
 
     def get(self, request, *args, **kwargs):
-        pars_type()
+        pars_data_currency()
 
+
+class FindMaxTrend(generic.FormView):
+    pass
 

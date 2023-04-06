@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'trader.apps.TraderConfig',
+    'django_admin_inline_paginator',
 ]
 
 MIDDLEWARE = [
@@ -104,9 +105,13 @@ LEAGUE = "Sanctum"
 
 POE_API = "https://poe.ninja/api/data"
 
-LIST_ITEM = "itemoverview"
+ITEM_LIST = "itemoverview"
 
 ITEM_PRISE = "itemhistory"
+
+CURRENCY_LIST = "currencyoverview"
+
+CURRENCY_PRICE = "currencyhistory"
 
 # HEADERS = {'accept-encoding': 'gzip, deflate, br',
 #            'accept-language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
