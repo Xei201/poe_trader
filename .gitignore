@@ -1,0 +1,7 @@
+/venv/
+/.idea/
+/poe/deploy/
+/poe/poe/settings.ini
+/poe/trader/migrations/
+/poe/db.sqlite3
+/poe/logs/

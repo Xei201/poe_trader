@@ -1,0 +1,18 @@
+{% extends "baza.html" %}
+
+{% block title %} Pars Type{% endblock %}
+
+{% block content %}
+<h1> Pars Data </h1>
+
+            <ul class="list-group">
+
+              {% for data in datas %}
+              <li class="list-group-item">
+                  <p><b>поле 1:</b> {{ data.name }}</p>
+
+              </li>
+              {% endfor %}
+
+            </ul>
+{% endblock %}
