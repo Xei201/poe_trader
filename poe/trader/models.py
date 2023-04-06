@@ -1,4 +1,9 @@
+import re
+from os import path
+
 from django.db import models
+
+from poe import settings
 
 
 class Category(models.Model):
@@ -29,6 +34,9 @@ class Item(models.Model):
 
     class Meta:
         ordering = ["name"]
+
+    def get_absolute_url(self):
+        return path.join(settings.POE_ITEM_URL, re.sub(r'([a-z])([A-Z])', r'\1-\2', str(self.type)), self.details_id)
 
     def __str__(self):
         return self.name

@@ -1,3 +1,4 @@
+import re
 from pprint import pprint
 from datetime import datetime, timedelta
 
@@ -14,6 +15,5 @@ if __name__ == '__main__':
     # result = test(url)
     # pprint(result["lines"][0])
 
-    tod = datetime.today().date() - timedelta(days=2)
-
-    print(tod)
+    line = "UniqueArmours"
+    print(re.sub(r'([a-z][A-Z])', r'-\1', line))

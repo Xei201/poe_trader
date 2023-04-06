@@ -1,4 +1,5 @@
 import configparser
+import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,6 +26,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'trader.apps.TraderConfig',
     'django_admin_inline_paginator',
+    'crispy_forms',
+    'crispy_bootstrap4',
 ]
 
 MIDDLEWARE = [
@@ -42,7 +45,7 @@ ROOT_URLCONF = 'poe.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -54,6 +57,9 @@ TEMPLATES = [
         },
     },
 ]
+
+# Crispy forms version, using bootstrap
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 WSGI_APPLICATION = 'poe.wsgi.application'
 
@@ -112,6 +118,8 @@ ITEM_PRISE = "itemhistory"
 CURRENCY_LIST = "currencyoverview"
 
 CURRENCY_PRICE = "currencyhistory"
+
+POE_ITEM_URL = "https://poe.ninja/challenge"
 
 # HEADERS = {'accept-encoding': 'gzip, deflate, br',
 #            'accept-language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',

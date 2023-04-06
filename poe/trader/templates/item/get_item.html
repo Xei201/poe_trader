@@ -1,0 +1,18 @@
+{% extends "baza.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+<h1>Укажите критерии поиска</h1>
+
+
+<form action="" method="post" class="w-25 p-3">
+    {% csrf_token %}ц
+    <table>
+    {{ form|crispy }}
+    </table>
+    <input type="submit" value="Получить список" />
+
+</form>
+{% endblock %}

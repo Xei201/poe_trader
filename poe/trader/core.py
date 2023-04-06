@@ -6,6 +6,7 @@ from urllib.parse import urlencode
 
 import requests
 from django.db import transaction
+from django.db.models import Min, Max, Count
 
 from poe import settings
 from .models import Category, Item, DataPoint
@@ -137,3 +138,47 @@ def pars_data_currency():
                     logger.warning(f"Всё упало при выгрузке {item.name} по причине {str(e)}")
             else:
                 logger.info(f"Реквест к {item.name} вернул {r.status_code}")
+
+
+class FindTrend():
+
+    def __init__(self, request):
+        self.date_min, self.date_max, self.value, self.amount = self.get_params(request)
+
+    @classmethod
+    def get_params(cls, request):
+        date_min = request.GET.get("date_min", "")
+        date_max = request.GET.get("date_max", "")
+        value = request.GET.get("value", "")
+        amount = request.GET.get("amount", "")
+
+        return date_min, date_max, value, amount
+
+    def get_item(self):
+        # DataPoint.objects.filter(
+        #     data_date__in=[self.date_min, self.date_max],
+        #     amount__gt=self.amount
+        # ).value('item').anotate(
+        #     min_price=Min('books__price'),
+        #     max_price=Max('books__price')
+        # )
+        list_item = []
+        list_item_id = DataPoint.objects.filter(
+            data_date__in=[self.date_min, self.date_max],
+            amount__gt=self.amount,
+        ).values_list("item", flat=True).alias(
+            cnt=Count('id'),
+            dif_price=Max('value') - Min('value'),
+        ).filter(cnt__gte=2, dif_price__gte=self.value)
+
+        for id in list_item_id:
+            diff_data_point = DataPoint.objects.select_related("item").filter(
+                item_id=id,
+                data_date__in=[self.date_min, self.date_max],
+            ).order_by("data_date")
+
+            if diff_data_point[0].value < diff_data_point[1].value:
+                list_item.append(diff_data_point)
+
+        return list_item
+

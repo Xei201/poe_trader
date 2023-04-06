@@ -1,7 +1,13 @@
+from urllib.parse import urlencode
+import datetime
+
+
 from django.shortcuts import render
+from django.urls import reverse
 from django.views import generic
 
-from .core import pars_data_pont, pars_data_currency, pars_type_currency
+from .forms import ParamsItem
+from .core import pars_data_pont, pars_data_currency, pars_type_currency, FindTrend
 from .models import Category
 
 
@@ -12,9 +18,56 @@ class ParsCategory(generic.ListView):
     context_object_name = "datas"
 
     def get(self, request, *args, **kwargs):
-        pars_data_currency()
+        pass
 
 
 class FindMaxTrend(generic.FormView):
-    pass
+    """Форма указания параметров поиска итемов"""
+
+    template_name = 'item/get_item.html'
+    form_class = ParamsItem
+    permission_required = ("API.can_request",)
+
+    def form_valid(self, form):
+        self.form = form
+        return super().form_valid(form)
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial["date_min"] = datetime.date.today()
+        initial["date_max"] = datetime.date.today()
+        return initial
+
+    def get_success_url(self):
+        params = {
+            "value": self.form.cleaned_data["min_differenc_value"],
+            "amount": self.form.cleaned_data["min_amount"],
+            "date_min": self.form.cleaned_data["date_min"],
+            "date_max": self.form.cleaned_data["date_max"],
+        }
+        return reverse("list-find-item") + '?' + urlencode(params)
+
+
+class ListItem(generic.TemplateView):
+    """Список итемов по параметрам"""
+
+    template_name = 'item/list_item.html'
+    paginate_by = 20
+    # context_object_name = "items"
+
+    # def get_queryset(self):
+    #     find_item = FindTrend(self.request)
+    #     return find_item.get_item()
+    #
+    # def get(self, request, *args, **kwargs):
+    #     find_item = FindTrend(self.request)
+    #     context_data = find_item.get_item()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        find_item = FindTrend(self.request)
+        context_data = find_item.get_item()
+        context['items'] = context_data
+        return context
+
 

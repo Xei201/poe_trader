@@ -1,0 +1,32 @@
+{% extends "baza.html" %}
+
+
+{% block content %}
+    <h1>Список итемов</h1>
+    <div>
+        <p><b>Разница значений:</b> {{ value }}</p>
+        <p><b>Количество:</b> {{ amount }}</p>
+        <p><b>Начальная дата:</b> {{ date_min }}</p>
+        <p><b>Конечная дата:</b> {{ date_max }}</p>
+    </div>
+    {% if items %}
+
+            <ul>
+
+              {% for item in items %}
+              <li>
+                  <p>
+                      <a href="{{ item.0.item.get_absolute_url }}"> {{ item.0.item }}</a>
+                  </p>
+                  <p><b>Name:</b> {{ item.0.item }}</p>
+                  <p><b>Начальное/конечное количество:</b> {{ item.0.amount }} / {{ item.1.amount }}</p>
+                  <p><b>Начальня/конечная цена:</b> {{ item.0.value }} / {{ item.1.value }}</p>
+                  <p><b>Разница цены:</b> ---- </p>
+              </li>
+              {% endfor %}
+
+            </ul>
+    {% else %}
+      <p>Не найдено удоволетворительных значений</p>
+    {% endif %}
+{% endblock %}
