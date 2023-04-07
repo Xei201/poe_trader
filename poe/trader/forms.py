@@ -1,8 +1,11 @@
 import datetime
 
 from django import forms
+from django.db.models import Max
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
+
+from .models import DataPoint
 
 
 class ParamsItem(forms.Form):
@@ -36,11 +39,16 @@ class ParamsItem(forms.Form):
     def clean_date_max(self):
         date_min = self.cleaned_data["date_min"]
         date_max = self.cleaned_data["date_max"]
+        control_date = DataPoint.objects.aggregate(max_date=Max("data_date"))
+
         if date_min > date_max:
             raise ValidationError(_("Конечная дата должна быть позже начальной"))
 
         if date_max > datetime.date.today():
             raise ValidationError(_("Дата не может быть из будущего"))
+
+        if date_max > control_date["max_date"]:
+            raise ValidationError(_("Дата не может быть больше крайней даты из БД"))
 
         return date_max
 
@@ -55,7 +63,6 @@ class ParamsItem(forms.Form):
     def clean_min_amount(self):
         amount = self.cleaned_data["min_amount"]
 
-        print(amount)
         if amount < 0:
             raise ValidationError(_("Количество товара не может быть меньше 0"))
 

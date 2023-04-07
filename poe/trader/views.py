@@ -1,14 +1,13 @@
 from urllib.parse import urlencode
 import datetime
 
-
-from django.shortcuts import render
+from django.db.models import Max
 from django.urls import reverse
 from django.views import generic
 
 from .forms import ParamsItem
 from .core import pars_data_pont, pars_data_currency, pars_type_currency, FindTrend
-from .models import Category
+from .models import Category, DataPoint
 
 
 class ParsCategory(generic.ListView):
@@ -34,8 +33,9 @@ class FindMaxTrend(generic.FormView):
 
     def get_initial(self):
         initial = super().get_initial()
-        initial["date_min"] = datetime.date.today() - datetime.timedelta(days=1)
-        initial["date_max"] = datetime.date.today() - datetime.timedelta(days=2)
+        control_date = DataPoint.objects.aggregate(max_date=Max("data_date"))
+        initial["date_min"] = control_date["max_date"] - datetime.timedelta(days=2)
+        initial["date_max"] = control_date["max_date"]
         return initial
 
     def get_success_url(self):
