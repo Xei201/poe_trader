@@ -55,19 +55,15 @@ class ListItem(generic.TemplateView):
     paginate_by = 20
     # context_object_name = "items"
 
-    # def get_queryset(self):
-    #     find_item = FindTrend(self.request)
-    #     return find_item.get_item()
-    #
-    # def get(self, request, *args, **kwargs):
-    #     find_item = FindTrend(self.request)
-    #     context_data = find_item.get_item()
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         find_item = FindTrend(self.request)
         context_data = find_item.get_item()
         context['items'] = context_data
+
+        params_search = (FindTrend.get_params(self.request))
+        context['params_search'] = params_search
+
         return context
 
 

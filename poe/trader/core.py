@@ -155,14 +155,9 @@ class FindTrend():
         return date_min, date_max, value, amount
 
     def get_item(self):
-        # DataPoint.objects.filter(
-        #     data_date__in=[self.date_min, self.date_max],
-        #     amount__gt=self.amount
-        # ).value('item').anotate(
-        #     min_price=Min('books__price'),
-        #     max_price=Max('books__price')
-        # )
         list_item = []
+        # Выборка всех ID item, подходящий по времени и числу единиц в продаже,
+        # а также имеющих тендунцию больше или равную запрашиваемой
         list_item_id = DataPoint.objects.filter(
             data_date__in=[self.date_min, self.date_max],
             amount__gt=self.amount,
@@ -171,14 +166,18 @@ class FindTrend():
             dif_price=Max('value') - Min('value'),
         ).filter(cnt__gte=2, dif_price__gte=self.value)
 
-        for id in list_item_id:
-            diff_data_point = DataPoint.objects.select_related("item").filter(
-                item_id=id,
-                data_date__in=[self.date_min, self.date_max],
-            ).order_by("data_date")
+        # Загрузка Item по этим ID
+        diff_data_point = DataPoint.objects.select_related("item").filter(
+            item_id__in=list_item_id,
+            data_date__in=[self.date_min, self.date_max],
+        ).order_by("data_date", "item_id")
 
-            if diff_data_point[0].value < diff_data_point[1].value:
-                list_item.append(diff_data_point)
+        # Поиск Item с возрастающей тенденцией и формирование из них списка кортежей
+        # для загрузки на фронт
+        gap_value = len(diff_data_point) // 2
+        for index in range(gap_value):
+            if diff_data_point[index].value < diff_data_point[index + gap_value].value:
+                list_item.append((diff_data_point[index], diff_data_point[index + gap_value]))
 
         return list_item
 
