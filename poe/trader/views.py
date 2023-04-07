@@ -34,8 +34,8 @@ class FindMaxTrend(generic.FormView):
 
     def get_initial(self):
         initial = super().get_initial()
-        initial["date_min"] = datetime.date.today()
-        initial["date_max"] = datetime.date.today()
+        initial["date_min"] = datetime.date.today() - datetime.timedelta(days=1)
+        initial["date_max"] = datetime.date.today() - datetime.timedelta(days=2)
         return initial
 
     def get_success_url(self):

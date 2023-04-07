@@ -58,4 +58,4 @@ class DataPoint(models.Model):
         ordering = ["item", "data_date", "amount"]
 
     def __str__(self):
-        return str(self.value)
+        return str(self.id)

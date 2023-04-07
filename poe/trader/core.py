@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime, timedelta
+from decimal import Decimal
 from os import path
 from pprint import pprint
 from urllib.parse import urlencode
@@ -14,8 +15,10 @@ from .models import Category, Item, DataPoint
 logger = logging.getLogger(__name__)
 
 
-@transaction.atomic
+# 4 функции ниже отвечают за парсинг, в них при тестировании используй @transaction.atomic
+# как антипатерн, чтобы не заполнять БД лишними данными
 def pars_type_normal():
+    """Используется для парсинга итемов всех категорий кроме Currency"""
     categorys = Category.objects.exclude(name__in=["Currencys", "Fragments"])
     for category in categorys:
         params = {"league": settings.LEAGUE,
@@ -43,8 +46,8 @@ def pars_type_normal():
             logger.info(f"Реквест к {category.name} вернул {r.status_code}")
 
 
-@transaction.atomic
 def pars_type_currency():
+    """Парсит итемы Currency"""
     categorys = Category.objects.filter(name__in=["Currencys", "Fragments"])
     for category in categorys:
         params = {"league": settings.LEAGUE,
@@ -73,6 +76,7 @@ def pars_type_currency():
 
 
 def pars_data_pont():
+    """Парсит все графы итемов всех категорий кроме Currency"""
     categorys = Category.objects.exclude(name__in=["Currencys", "Fragments"])
     amount_categorys = categorys.count()
 
@@ -105,8 +109,8 @@ def pars_data_pont():
                 logger.info(f"Реквест к {item.name} вернул {r.status_code}")
 
 
-@transaction.atomic
 def pars_data_currency():
+    """Парсит все графы для итемов Currency"""
     categorys = Category.objects.filter(name__in=["Currencys", "Fragments"])
     amount_categorys = categorys.count()
 
@@ -141,6 +145,7 @@ def pars_data_currency():
 
 
 class FindTrend():
+    """Производит выгрузку списка итемов по условиям поиса тенденции"""
 
     def __init__(self, request):
         self.date_min, self.date_max, self.value, self.amount = self.get_params(request)
@@ -149,8 +154,8 @@ class FindTrend():
     def get_params(cls, request):
         date_min = request.GET.get("date_min", "")
         date_max = request.GET.get("date_max", "")
-        value = request.GET.get("value", "")
-        amount = request.GET.get("amount", "")
+        value = Decimal(request.GET.get("value", ""))
+        amount = int(request.GET.get("amount", ""))
 
         return date_min, date_max, value, amount
 
@@ -158,13 +163,14 @@ class FindTrend():
         list_item = []
         # Выборка всех ID item, подходящий по времени и числу единиц в продаже,
         # а также имеющих тендунцию больше или равную запрашиваемой
+
         list_item_id = DataPoint.objects.filter(
             data_date__in=[self.date_min, self.date_max],
             amount__gt=self.amount,
         ).values_list("item", flat=True).alias(
             cnt=Count('id'),
             dif_price=Max('value') - Min('value'),
-        ).filter(cnt__gte=2, dif_price__gte=self.value)
+        ).filter(cnt__gte=2, dif_price__gte=abs(self.value))
 
         # Загрузка Item по этим ID
         diff_data_point = DataPoint.objects.select_related("item").filter(
@@ -176,8 +182,12 @@ class FindTrend():
         # для загрузки на фронт
         gap_value = len(diff_data_point) // 2
         for index in range(gap_value):
-            if diff_data_point[index].value < diff_data_point[index + gap_value].value:
-                list_item.append((diff_data_point[index], diff_data_point[index + gap_value]))
+            if diff_data_point[index].value < diff_data_point[index + gap_value].value and self.value > 0:
+                list_item.append((
+                    diff_data_point[index],
+                    diff_data_point[index + gap_value],
+                    diff_data_point[index + gap_value].value - diff_data_point[index].value,
+                ))
 
         return list_item
 
