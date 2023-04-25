@@ -148,7 +148,7 @@ class FindTrend():
     """Производит выгрузку списка итемов по условиям поиса тенденции"""
 
     def __init__(self, request):
-        self.date_min, self.date_max, self.value, self.amount = self.get_params(request)
+        self.date_min, self.date_max, self.value, self.amount, self.sorted_param = self.get_params(request)
 
     @classmethod
     def get_params(cls, request):
@@ -156,8 +156,9 @@ class FindTrend():
         date_max = request.GET.get("date_max", "")
         value = Decimal(request.GET.get("value", ""))
         amount = int(request.GET.get("amount", ""))
+        sorted_param = request.GET.get("sorted_param", "")
 
-        return date_min, date_max, value, amount
+        return date_min, date_max, value, amount, sorted_param
 
     def get_item(self):
         list_item = []
@@ -189,5 +190,18 @@ class FindTrend():
                     diff_data_point[index + gap_value].value - diff_data_point[index].value,
                 ))
 
+        if self.sorted_param:
+            list_item = self.sort_result(list_item)
+
         return list_item
 
+    def sort_result(self, list_item):
+
+        if self.sorted_param == "amount_start":
+            return sorted(list_item, key=lambda x: x[0].amount)
+
+        if self.sorted_param == "amount_end":
+            return sorted(list_item, key=lambda x: x[1].amount)
+
+        if self.sorted_param == "delta_prise":
+            return sorted(list_item, key=lambda x: x[2])

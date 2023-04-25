@@ -57,10 +57,6 @@ class ListItem(generic.ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # find_item = FindTrend(self.request)
-        # context_data = find_item.get_item()
-        # context['items'] = context_data
-
         params_search = (FindTrend.get_params(self.request))
         context['params_search'] = params_search
 
@@ -69,6 +65,7 @@ class ListItem(generic.ListView):
     def get_queryset(self):
         find_item = FindTrend(self.request)
         result = find_item.get_item()
+
         return result
 
 

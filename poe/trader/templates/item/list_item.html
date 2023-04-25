@@ -1,4 +1,5 @@
 {% extends "baza.html" %}
+{% load pagination_logic %}
 
 
 {% block content %}
@@ -8,6 +9,11 @@
         <p><b>Количество:</b> {{ params_search.3 }}</p>
         <p><b>Начальная дата:</b> {{ params_search.0 }}</p>
         <p><b>Конечная дата:</b> {{ params_search.1 }}</p>
+        <p>
+            <a href="?{% query_transform sorted_param='delta_prise' %}">Фильтрация по цене</a> |
+            <a href="?{% query_transform sorted_param='amount_start' %}">Фильтрация по начальному количеству</a> |
+            <a href="?{% query_transform sorted_param='amount_end' %}">Фильтрация по конечному количеству</a>
+        </p>
     </div>
 
     {% if sessions %}
