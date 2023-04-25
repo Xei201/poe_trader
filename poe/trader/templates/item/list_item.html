@@ -9,11 +9,12 @@
         <p><b>Начальная дата:</b> {{ params_search.0 }}</p>
         <p><b>Конечная дата:</b> {{ params_search.1 }}</p>
     </div>
-    {% if items %}
+
+    {% if sessions %}
 
             <ul>
 
-              {% for item in items %}
+              {% for item in sessions %}
               <li>
                   <p>
                       <a href="{{ item.0.item.get_absolute_url }}"> {{ item.0.item }}</a>
